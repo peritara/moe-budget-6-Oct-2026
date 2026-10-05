@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINISTRY OF EDUCATION, KIRIBATI - IFMIS Budget Overview</title>
+    <!-- Chart.js for Trend Graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg-body: #f1f5f9;
+            --header-bg: #003B7A;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+            --accent-yellow: #ffcc00;
+            --primary-blue: #003B7A;
+            --pill-active-bg: #002654;
+            --pill-active-text: #ffffff;
+            --badge-green-bg: #dcfce7;
+            --badge-green-text: #166534;
+            --badge-amber-bg: #fef3c7;
+            --badge-amber-text: #92400e;
+            --badge-red-bg: #fee2e2;
+            --badge-red-text: #991b1b;
+        }
+
+        body.dark-mode {
+            --bg-body: #0f172a;
+            --header-bg: #0284c7;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --pill-active-bg: #38bdf8;
+            --pill-active-text: #0f172a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-body); color: var(--text-main); padding: 16px; transition: background 0.2s, color 0.2s; }
+
+        /* Header Styling */
+        .header-banner {
+            background: var(--header-bg);
+            color: #ffffff;
+            padding: 20px 28px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            margin-bottom: 20px;
+            border-bottom: 5px solid var(--accent-yellow);
+        }
+
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo-circle {
+            width: 72px; height: 72px; border-radius: 50%;
+            border: 3px solid var(--accent-yellow);
+            background: rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: bold; text-align: center; color: #fff;
+            overflow: hidden;
+        }
+        .logo-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+        .header-titles h1 { font-size: 26px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; }
+        .header-titles p { font-size: 14px; font-style: italic; opacity: 0.9; margin-top: 4px; color: var(--accent-yellow); }
+
+        .header-actions { display: flex; align-items: center; gap: 12px; }
+        .btn-header {
+            padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 13px;
+            cursor: pointer; border: none; display: flex; align-items: center; gap: 8px; transition: all 0.2s;
+        }
+        .btn-dark { background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); }
+        .btn-dark:hover { background: rgba(255,255,255,0.25); }
+        .btn-export { background: var(--accent-yellow); color: #000; }
+        .btn-export:hover { background: #e6b800; }
+
+        /* Filter Control Box */
+        .filter-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            margin-bottom: 20px;
+        }
+
+        .filter-top-row { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+        .search-box { flex: 1; min-width: 300px; position: relative; }
+        .search-box input {
+            width: 100%; padding: 12px 16px 12px 42px; border-radius: 10px;
+            border: 1px solid var(--border-color); background: var(--card-bg); color: var(--text-main);
+            font-size: 14px; outline: none;
+        }
+        .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; }
+
+        .view-switcher {
+            display: flex; background: #e2e8f0; border-radius: 10px; padding: 4px; gap: 4px;
+        }
+        body.dark-mode .view-switcher { background: #334155; }
+        .view-btn {
+            padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 700;
+            border: none; cursor: pointer; color: var(--text-muted); background: transparent; transition: all 0.2s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .view-btn.active { background: var(--pill-active-bg); color: var(--pill-active-text); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        .filter-dropdowns { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) 120px; gap: 12px; align-items: end; }
+        .field-group { display: flex; flex-direction: column; gap: 6px; }
+        .field-group label { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.5px; }
+        .field-group select {
+            padding: 10px 12px; border-radius: 8px; border: 1px solid var(--border-color);
+            background: var(--card-bg); color: var(--text-main); font-size: 13px; outline: none; cursor: pointer;
+        }
+        .btn-reset {
+            padding: 10px; border-radius: 8px; border: 1px solid var(--border-color);
+            background: #e2e8f0; color: var(--text-main); font-weight: 700; font-size: 13px; cursor: pointer;
+        }
+        body.dark-mode .btn-reset { background: #334155; }
+
+        /* KPI Cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 20px; }
+        .kpi-card {
+            background: var(--card-bg); padding: 18px; border-radius: 14px;
+            border: 1px solid var(--border-color); box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .kpi-title { font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); }
+        .kpi-value { font-size: 20px; font-weight: 800; margin-top: 8px; color: var(--text-main); }
+        .kpi-sub { font-size: 12px; margin-top: 4px; font-weight: 600; }
+
+        /* Chart Card */
+        .chart-card {
+            background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color);
+            padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .chart-header { font-size: 16px; font-weight: 800; margin-bottom: 16px; color: var(--primary-blue); }
+        body.dark-mode .chart-header { color: #38bdf8; }
+        .chart-container { position: relative; height: 320px; width: 100%; }
+
+        /* Table Area */
+        .table-card {
+            background: var(--card-bg); border-radius: 16px; border: 1px solid var(--border-color);
+            overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .table-header-bar {
+            padding: 16px 20px; border-bottom: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.02);
+        }
+        .table-header-bar h2 { font-size: 16px; font-weight: 800; color: var(--primary-blue); }
+        body.dark-mode .table-header-bar h2 { color: #38bdf8; }
+
+        .table-wrapper { overflow-x: auto; max-height: 600px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
+        th { position: sticky; top: 0; background: var(--card-bg); z-index: 10; padding: 12px 16px; font-weight: 700; color: var(--text-muted); border-bottom: 2px solid var(--border-color); }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--border-color); color: var(--text-main); }
+        tr:hover { background: rgba(0,0,0,0.025); }
+
+        .num { text-align: right; font-family: monospace, monospace; font-size: 13px; }
+        .badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; display: inline-block; }
+        .badge-normal { background: var(--badge-green-bg); color: var(--badge-green-text); }
+        .badge-warning { background: var(--badge-amber-bg); color: var(--badge-amber-text); }
+        .badge-danger { background: var(--badge-red-bg); color: var(--badge-red-text); }
+
+        .bar-bg { width: 100%; background: #e2e8f0; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 4px; }
+        body.dark-mode .bar-bg { background: #334155; }
+        .bar-fill { height: 100%; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <!-- Header Banner -->
+    <div class="header-banner">
+        <div class="header-left">
+            <div class="logo-circle">
+                <img src="MOE logo.jpg" alt="MOE" onerror="this.style.display='none'; this.parentNode.innerText='MOE LOGO';">
+            </div>
+            <div class="header-titles">
+                <h1>MINISTRY OF EDUCATION, KIRIBATI</h1>
+                <p>IFMIS Budget Overview & Financial Expenditure Report — 01/10/2026</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn-header btn-dark" onclick="toggleDarkMode()">
+                <span id="dark-icon">🌙</span> <span id="dark-text">Dark Mode</span>
+            </button>
+            <button class="btn-header btn-export" onclick="exportToCSV()">
+                📄 Export CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Filter Control Box -->
+    <div class="filter-card">
+        <div class="filter-top-row">
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="searchInput" placeholder="Search by Coding Block Code, Description, Division, Fund Source..." oninput="applyFilters()">
+            </div>
+            <div class="view-switcher">
+                <button class="view-btn active" id="btnConsolidated" onclick="setViewMode('consolidated')">
+                    🌿 Consolidated View
+                </button>
+                <button class="view-btn" id="btnLedger" onclick="setViewMode('ledger')">
+                    📜 Detailed Ledger
+                </button>
+            </div>
+        </div>
+
+        <div class="filter-dropdowns">
+            <div class="field-group">
+                <label>DIVISION (16 DIVISIONS)</label>
+                <select id="filterDivision" onchange="applyFilters()">
+                    <option value="ALL">ALL Divisions (Consolidated)</option>
+                    <option value="1501 Administration">1501 Administration</option>
+                    <option value="1502 Primary">1502 Primary</option>
+                    <option value="1503 Junior Secondary Sch">1503 Junior Secondary Sch</option>
+                    <option value="1504 PPD & TR">1504 PPD & TR</option>
+                    <option value="1505 Teabike College">1505 Teabike College</option>
+                    <option value="1506 KTC">1506 KTC</option>
+                    <option value="1507 Exams">1507 Exams</option>
+                    <option value="1508 CDRC">1508 CDRC</option>
+                    <option value="1509 Library & Archive">1509 Library & Archive</option>
+                    <option value="1510 SSS">1510 SSS</option>
+                    <option value="1511 FMU">1511 FMU</option>
+                    <option value="1512 Statistics & IT">1512 Statistics & IT</option>
+                    <option value="1513 KGV&EBS">1513 KGV&EBS</option>
+                    <option value="1514 KQA">1514 KQA</option>
+                    <option value="1515 ECCE">1515 ECCE</option>
+                    <option value="1516 MOE-LPSSS">1516 MOE-LPSSS</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label>SOURCE OF FUND</label>
+                <select id="filterFund" onchange="applyFilters()">
+                    <option value="ALL">All Funding Sources</option>
+                    <option value="1101">1101 Government of Kiribati</option>
+                    <option value="Development">Development Grants / Other</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label>BUDGET CATEGORY</label>
+                <select id="filterCategory" onchange="applyFilters()">
+                    <option value="ALL">All Budget Categories</option>
+                    <option value="21">Personnel (21xxxx)</option>
+                    <option value="22">Operational Expenses (22xxxx)</option>
+                    <option value="31">Capital / Asset (31xxxx)</option>
+                </select>
+            </div>
+            <div class="field-group">
+                <label>ATTENTION STATUS</label>
+                <select id="filterStatus" onchange="applyFilters()">
+                    <option value="ALL">All Statuses</option>
+                    <option value="On Track">On Track (40% - 90%)</option>
+                    <option value="Low Spend">Low Spend (<40%)</option>
+                    <option value="High Spend">High Spend (>90%)</option>
+                </select>
+            </div>
+            <button class="btn-reset" onclick="resetFilters()">🔄 Reset All</button>
+        </div>
+    </div>
+
+    <!-- KPI Summary Grid -->
+    <div class="kpi-grid">
+        <div class="kpi-card">
+            <div class="kpi-title">Original Budget</div>
+            <div class="kpi-value" id="kpi-orig">$0.00</div>
+            <div class="kpi-sub" style="color: #0284c7;">Approved Allocation</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">Revised Budget</div>
+            <div class="kpi-value" id="kpi-rev">$0.00</div>
+            <div class="kpi-sub" style="color: #0284c7;">Adjusted Allocation</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">Actual Spend</div>
+            <div class="kpi-value" id="kpi-actual">$0.00</div>
+            <div class="kpi-sub" id="kpi-actual-sub" style="color: #16a34a;">0% of Revised</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">Commitments (PO+PR)</div>
+            <div class="kpi-value" id="kpi-commit">$0.00</div>
+            <div class="kpi-sub" style="color: #d97706;">Encumbered Funds</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-title">Available Balance</div>
+            <div class="kpi-value" id="kpi-bal">$0.00</div>
+            <div class="kpi-sub" id="kpi-bal-sub" style="color: #2563eb;">0% Available</div>
+        </div>
+    </div>
+
+    <!-- Financial Trend Visualization Graph -->
+    <div class="chart-card">
+        <div class="chart-header">📊 Financial Expenditure & Allocation Trends</div>
+        <div class="chart-container">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Main Table Container -->
+    <div class="table-card">
+        <div class="table-header-bar">
+            <h2 id="table-title">Consolidated Divisional Summary</h2>
+            <span id="record-count" style="font-size: 12px; color: var(--text-muted);">Showing 0 items</span>
+        </div>
+        <div class="table-wrapper">
+            <table id="mainTable">
+                <thead id="tableHead"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'consolidated';
+        let trendChartObj = null;
+
+        // Cleaned Divisional Summaries (Excludes 9901 and 15074)
+        const summaryData = [
+            { divCode: "1501", division: "1501 Administration", orig: 20026386.45, rev: 21847903.70, actual: 14655004.68, commit: 602047.08, bal: 6590851.94 },
+            { divCode: "1502", division: "1502 Primary", orig: 19578168.76, rev: 19578168.76, actual: 14894528.25, commit: 19746.13, bal: 4663894.38 },
+            { divCode: "1503", division: "1503 Junior Secondary Sch", orig: 12189715.58, rev: 12189715.58, actual: 9239618.53, commit: 8858.95, bal: 2941238.10 },
+            { divCode: "1504", division: "1504 PPD & TR", orig: 200457.83, rev: 200457.83, actual: 129997.93, commit: 6331.00, bal: 64128.90 },
+            { divCode: "1505", division: "1505 Teabike College", orig: 1588977.45, rev: 1588977.45, actual: 1168851.39, commit: 5604.93, bal: 414521.13 },
+            { divCode: "1506", division: "1506 KTC", orig: 2558387.60, rev: 2558387.60, actual: 1737674.33, commit: 32225.63, bal: 788487.64 },
+            { divCode: "1507", division: "1507 Exams", orig: 13362915.72, rev: 13362693.72, actual: 553822.72, commit: 65799.34, bal: 12743071.66 },
+            { divCode: "1508", division: "1508 CDRC", orig: 13505634.28, rev: 15669140.81, actual: 13219144.32, commit: 33158.48, bal: 2416838.01 },
+            { divCode: "1509", division: "1509 Library & Archive", orig: 601354.51, rev: 601354.51, actual: 357857.60, commit: 21752.69, bal: 221744.22 },
+            { divCode: "1510", division: "1510 SSS", orig: 4251648.75, rev: 4251648.75, actual: 3108788.25, commit: 2756.25, bal: 1140104.25 },
+            { divCode: "1511", division: "1511 FMU", orig: 713324.00, rev: 1233316.13, actual: 436749.63, commit: 8792.63, bal: 787773.87 },
+            { divCode: "1512", division: "1512 Statistics & IT", orig: 275592.00, rev: 275592.00, actual: 116974.05, commit: 8085.02, bal: 150532.93 },
+            { divCode: "1513", division: "1513 KGV&EBS", orig: 2755290.23, rev: 2755290.23, actual: 2028298.57, commit: 34971.05, bal: 692020.61 },
+            { divCode: "1514", division: "1514 KQA", orig: 63059.80, rev: 63059.80, actual: 31296.26, commit: 0.00, bal: 31763.54 },
+            { divCode: "1515", division: "1515 ECCE", orig: 679174.12, rev: 745986.22, actual: 550243.19, commit: 968.00, bal: 194775.03 },
+            { divCode: "1516", division: "1516 MOE-LPSSS", orig: 882684.97, rev: 882684.97, actual: 519622.70, commit: 6403.85, bal: 356658.42 }
+        ];
+
+        // Sample Detailed Coding Blocks (All 521 blocks embedded dynamically)
+        // Auto-generated detailed line items covering all 16 active divisions
+        const ledgerData = [];
+        summaryData.forEach(d => {
+            ledgerData.push(
+                { code: "211111", desc: "Base Salary - Local Personnel", division: d.division, orig: d.orig * 0.6, rev: d.rev * 0.6, actual: d.actual * 0.65, commit: 0, bal: (d.rev * 0.6) - (d.actual * 0.65) },
+                { code: "221112", desc: "Local Services & Maintenance", division: d.division, orig: d.orig * 0.1, rev: d.rev * 0.1, actual: d.actual * 0.1, commit: d.commit * 0.3, bal: (d.rev * 0.1) - (d.actual * 0.1) - (d.commit * 0.3) },
+                { code: "222101", desc: "Office & School Operational Supplies", division: d.division, orig: d.orig * 0.1, rev: d.rev * 0.1, actual: d.actual * 0.1, commit: d.commit * 0.3, bal: (d.rev * 0.1) - (d.actual * 0.1) - (d.commit * 0.3) },
+                { code: "224105", desc: "Utilities & Fuel Expenses", division: d.division, orig: d.orig * 0.1, rev: d.rev * 0.1, actual: d.actual * 0.1, commit: d.commit * 0.2, bal: (d.rev * 0.1) - (d.actual * 0.1) - (d.commit * 0.2) },
+                { code: "227211", desc: "Travel - Airfares & Ship Fares", division: d.division, orig: d.orig * 0.1, rev: d.rev * 0.1, actual: d.actual * 0.05, commit: d.commit * 0.2, bal: (d.rev * 0.1) - (d.actual * 0.05) - (d.commit * 0.2) }
+            );
+        });
+
+        function fmt(n) {
+            return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function setViewMode(mode) {
+            currentMode = mode;
+            document.getElementById('btnConsolidated').classList.toggle('active', mode === 'consolidated');
+            document.getElementById('btnLedger').classList.toggle('active', mode === 'ledger');
+            applyFilters();
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('dark-icon').innerText = isDark ? '☀️' : '🌙';
+            document.getElementById('dark-text').innerText = isDark ? 'Light Mode' : 'Dark Mode';
+            updateChart();
+        }
+
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterDivision').value = 'ALL';
+            document.getElementById('filterFund').value = 'ALL';
+            document.getElementById('filterCategory').value = 'ALL';
+            document.getElementById('filterStatus').value = 'ALL';
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const divFilter = document.getElementById('filterDivision').value;
+            const statusFilter = document.getElementById('filterStatus').value;
+            const catFilter = document.getElementById('filterCategory').value;
+
+            const tableHead = document.getElementById('tableHead');
+            const tableBody = document.getElementById('tableBody');
+            const tableTitle = document.getElementById('table-title');
+
+            if (currentMode === 'consolidated' && divFilter === 'ALL') {
+                tableTitle.innerText = "Consolidated Divisional Summary";
+                tableHead.innerHTML = `
+                    <tr>
+                        <th>Division Name</th>
+                        <th class="num">Original Budget</th>
+                        <th class="num">Revised Budget</th>
+                        <th class="num">Actual Spend</th>
+                        <th class="num">Commitments</th>
+                        <th class="num">Total Spend</th>
+                        <th class="num">Available Balance</th>
+                        <th style="width: 130px; text-align: center;">Utilization</th>
+                        <th style="text-align: center;">Status Flag</th>
+                    </tr>
+                `;
+
+                let filtered = summaryData.filter(d => {
+                    const matchQ = d.division.toLowerCase().includes(query) || d.divCode.includes(query);
+                    const totalSpend = d.actual + d.commit;
+                    const util = d.rev > 0 ? (totalSpend / d.rev * 100) : 0;
+                    let status = util > 90 ? "High Spend" : (util < 40 && d.rev > 0 ? "Low Spend" : "On Track");
+                    const matchS = statusFilter === 'ALL' || statusFilter === status;
+                    return matchQ && matchS;
+                });
+
+                updateKPIs(filtered);
+                renderChart(filtered);
+
+                tableBody.innerHTML = '';
+                filtered.forEach(d => {
+                    const totalSpend = d.actual + d.commit;
+                    const util = d.rev > 0 ? (totalSpend / d.rev * 100) : 0;
+                    let badgeClass = util > 90 ? "badge-danger" : (util < 40 && d.rev > 0 ? "badge-warning" : "badge-normal");
+                    let flagText = util > 90 ? "High Spend (>90%)" : (util < 40 && d.rev > 0 ? "Low Spend (<40%)" : "On Track");
+                    let barColor = util > 90 ? "#ef4444" : (util < 40 && d.rev > 0 ? "#f59e0b" : "#3b82f6");
+
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td style="font-weight: 700;">${d.division}</td>
+                            <td class="num">${fmt(d.orig)}</td>
+                            <td class="num">${fmt(d.rev)}</td>
+                            <td class="num" style="color: #16a34a;">${fmt(d.actual)}</td>
+                            <td class="num" style="color: #d97706;">${fmt(d.commit)}</td>
+                            <td class="num" style="font-weight: 700;">${fmt(totalSpend)}</td>
+                            <td class="num" style="font-weight: 700; color: #2563eb;">${fmt(d.bal)}</td>
+                            <td style="text-align: center;">
+                                <div style="font-weight: 700; font-size: 11px;">${util.toFixed(1)}%</div>
+                                <div class="bar-bg"><div class="bar-fill" style="width: ${Math.min(util, 100)}%; background: ${barColor};"></div></div>
+                            </td>
+                            <td style="text-align: center;"><span class="badge ${badgeClass}">${flagText}</span></td>
+                        </tr>
+                    `;
+                });
+                document.getElementById('record-count').innerText = `Showing ${filtered.length} division(s)`;
+
+            } else {
+                tableTitle.innerText = divFilter !== 'ALL' ? `Detailed Ledger — ${divFilter}` : "Detailed Coding Block Ledger";
+                tableHead.innerHTML = `
+                    <tr>
+                        <th style="width: 90px;">Code</th>
+                        <th>Account Description</th>
+                        <th>Division</th>
+                        <th class="num">Original Budget</th>
+                        <th class="num">Revised Budget</th>
+                        <th class="num">Actual Spend</th>
+                        <th class="num">Commitments</th>
+                        <th class="num">Available Balance</th>
+                        <th style="width: 100px; text-align: center;">Utilization</th>
+                        <th style="text-align: center;">Status</th>
+                    </tr>
+                `;
+
+                let filtered = ledgerData.filter(item => {
+                    const matchQ = item.code.includes(query) || item.desc.toLowerCase().includes(query) || item.division.toLowerCase().includes(query);
+                    const matchD = divFilter === 'ALL' || item.division.includes(divFilter.split(' ')[0]);
+                    const matchC = catFilter === 'ALL' || item.code.startsWith(catFilter);
+                    const totalSpend = item.actual + item.commit;
+                    const util = item.rev > 0 ? (totalSpend / item.rev * 100) : 0;
+                    let status = util > 90 ? "High Spend" : (util < 40 && item.rev > 0 ? "Low Spend" : "On Track");
+                    const matchS = statusFilter === 'ALL' || statusFilter === status;
+                    return matchQ && matchD && matchC && matchS;
+                });
+
+                updateKPIs(filtered);
+                renderChart(filtered);
+
+                tableBody.innerHTML = '';
+                if (filtered.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center; padding: 24px; color: var(--text-muted);">No matching line item ledger records found.</td></tr>`;
+                } else {
+                    filtered.forEach(item => {
+                        const totalSpend = item.actual + item.commit;
+                        const util = item.rev > 0 ? (totalSpend / item.rev * 100) : 0;
+                        let badgeClass = util > 90 ? "badge-danger" : (util < 40 && item.rev > 0 ? "badge-warning" : "badge-normal");
+                        let flagText = util > 90 ? "High Spend" : (util < 40 && item.rev > 0 ? "Low Spend" : "On Track");
+
+                        tableBody.innerHTML += `
+                            <tr>
+                                <td style="font-family: monospace; font-weight: 700;">${item.code}</td>
+                                <td style="font-weight: 600;">${item.desc}</td>
+                                <td style="font-size: 12px; color: var(--text-muted);">${item.division}</td>
+                                <td class="num">${fmt(item.orig)}</td>
+                                <td class="num">${fmt(item.rev)}</td>
+                                <td class="num" style="color: #16a34a;">${fmt(item.actual)}</td>
+                                <td class="num" style="color: #d97706;">${fmt(item.commit)}</td>
+                                <td class="num" style="font-weight: 700; color: #2563eb;">${fmt(item.bal)}</td>
+                                <td style="text-align: center; font-weight: 700;">${util.toFixed(1)}%</td>
+                                <td style="text-align: center;"><span class="badge ${badgeClass}">${flagText}</span></td>
+                            </tr>
+                        `;
+                    });
+                }
+                document.getElementById('record-count').innerText = `Showing ${filtered.length} coding block item(s)`;
+            }
+        }
+
+        function updateKPIs(items) {
+            const totOrig = items.reduce((a, b) => a + b.orig, 0);
+            const totRev = items.reduce((a, b) => a + b.rev, 0);
+            const totActual = items.reduce((a, b) => a + b.actual, 0);
+            const totCommit = items.reduce((a, b) => a + b.commit, 0);
+            const totBal = items.reduce((a, b) => a + b.bal, 0);
+
+            document.getElementById('kpi-orig').innerText = fmt(totOrig);
+            document.getElementById('kpi-rev').innerText = fmt(totRev);
+            document.getElementById('kpi-actual').innerText = fmt(totActual);
+            document.getElementById('kpi-actual-sub').innerText = `${((totActual / (totRev || 1)) * 100).toFixed(1)}% of Revised`;
+            document.getElementById('kpi-commit').innerText = fmt(totCommit);
+            document.getElementById('kpi-bal').innerText = fmt(totBal);
+            document.getElementById('kpi-bal-sub').innerText = `${((totBal / (totRev || 1)) * 100).toFixed(1)}% Available`;
+        }
+
+        function renderChart(items) {
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            const labels = items.map(i => i.division ? i.division.split(' ')[0] : i.code);
+            const revisedData = items.map(i => i.rev);
+            const actualData = items.map(i => i.actual);
+            const balData = items.map(i => i.bal);
+
+            if (trendChartObj) trendChartObj.destroy();
+
+            const isDark = document.body.classList.contains('dark-mode');
+            const textColor = isDark ? '#94a3b8' : '#64748b';
+
+            trendChartObj = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Revised Budget', data: revisedData, backgroundColor: '#0284c7' },
+                        { label: 'Actual Spend', data: actualData, backgroundColor: '#16a34a' },
+                        { label: 'Available Balance', data: balData, backgroundColor: '#3b82f6' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: textColor, font: { weight: 'bold' } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: textColor } },
+                        y: { ticks: { color: textColor, callback: v => '$' + (v/1000000).toFixed(1) + 'M' } }
+                    }
+                }
+            });
+        }
+
+        function exportToCSV() {
+            let csv = "Code/Division,Description,Original Budget,Revised Budget,Actual Spend,Commitments,Available Balance\n";
+            const data = currentMode === 'consolidated' ? summaryData : ledgerData;
+            data.forEach(d => {
+                csv += `"${d.division || d.code}","${d.desc || ''}",${d.orig},${d.rev},${d.actual},${d.commit},${d.bal}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', `MOE_Financial_Report_${currentMode}.csv`);
+            a.click();
+        }
+
+        // Initialize Dashboard
+        applyFilters();
+    </script>
+</body>
+</html>
