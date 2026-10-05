@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MINISTRY OF EDUCATION, KIRIBATI - IFMIS Budget Overview</title>
-    <!-- Chart.js for Trend Graph -->
+    <title>MINISTRY OF EDUCATION, KIRIBATI - IFMIS Recurrent Budget Overview</title>
+    <!-- Chart.js for Live Presentation Trends -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
@@ -179,7 +179,7 @@
             </div>
             <div class="header-titles">
                 <h1>MINISTRY OF EDUCATION, KIRIBATI</h1>
-                <p>IFMIS Budget Overview & Financial Expenditure Report — 01/10/2026</p>
+                <p>IFMIS Recurrent Budget Overview & Financial Expenditure Report — Live Presentation</p>
             </div>
         </div>
         <div class="header-actions">
@@ -317,7 +317,7 @@
         let currentMode = 'consolidated';
         let trendChartObj = null;
 
-        // Cleaned Divisional Summaries (Excludes 9901 and 15074)
+        // Cleaned Divisional Summaries (16 Active Divisions)
         const summaryData = [
             { divCode: "1501", division: "1501 Administration", orig: 20026386.45, rev: 21847903.70, actual: 14655004.68, commit: 602047.08, bal: 6590851.94 },
             { divCode: "1502", division: "1502 Primary", orig: 19578168.76, rev: 19578168.76, actual: 14894528.25, commit: 19746.13, bal: 4663894.38 },
@@ -337,18 +337,32 @@
             { divCode: "1516", division: "1516 MOE-LPSSS", orig: 882684.97, rev: 882684.97, actual: 519622.70, commit: 6403.85, bal: 356658.42 }
         ];
 
-        // Sample Detailed Coding Blocks (All 521 blocks embedded dynamically)
-        // Auto-generated detailed line items covering all 16 active divisions
-        const ledgerData = [];
-        summaryData.forEach(d => {
-            ledgerData.push(
-                { code: "211111", desc: "Base Salary - Local Personnel", division: d.division, orig: d.orig * 0.6, rev: d.rev * 0.6, actual: d.actual * 0.65, commit: 0, bal: (d.rev * 0.6) - (d.actual * 0.65) },
-                { code: "221112", desc: "Local Services & Maintenance", division: d.division, orig: d.orig * 0.1, rev: d.rev * 0.1, actual: d.actual * 0.1, commit: d.commit * 0.3, bal: (d.rev * 0.1) - (d.actual * 0.1) - (d.commit * 0.3) },
-                { code: "222101", desc: "Office & School Operational Supplies", division: d.division, orig: d.orig * 0.1, rev: d.rev * 0.1, actual: d.actual * 0.1, commit: d.commit * 0.3, bal: (d.rev * 0.1) - (d.actual * 0.1) - (d.commit * 0.3) },
-                { code: "224105", desc: "Utilities & Fuel Expenses", division: d.division, orig: d.orig * 0.1, rev: d.rev * 0.1, actual: d.actual * 0.1, commit: d.commit * 0.2, bal: (d.rev * 0.1) - (d.actual * 0.1) - (d.commit * 0.2) },
-                { code: "227211", desc: "Travel - Airfares & Ship Fares", division: d.division, orig: d.orig * 0.1, rev: d.rev * 0.1, actual: d.actual * 0.05, commit: d.commit * 0.2, bal: (d.rev * 0.1) - (d.actual * 0.05) - (d.commit * 0.2) }
-            );
-        });
+        // Detailed Recurrent Budget Coding Blocks mapped from financial report
+        const ledgerData = [
+            // 1501 Administration
+            { code: "211111", desc: "Base Salary - Local Personnel", division: "1501 Administration", orig: 2287233.00, rev: 2287233.00, actual: 1735165.73, commit: 0.00, bal: 552067.27 },
+            { code: "211121", desc: "Allowances - Local Personnel", division: "1501 Administration", orig: 107908.00, rev: 107908.00, actual: 70138.38, commit: 0.00, bal: 37769.62 },
+            { code: "211131", desc: "Overtime - Local Personnel", division: "1501 Administration", orig: 15000.00, rev: 15000.00, actual: 12431.55, commit: 0.00, bal: 2568.45 },
+            { code: "211211", desc: "Employer Contribution - KPF", division: "1501 Administration", orig: 172186.00, rev: 172186.00, actual: 129210.42, commit: 0.00, bal: 42975.58 },
+            { code: "221112", desc: "Local Services & Maintenance", division: "1501 Administration", orig: 45000.00, rev: 45000.00, actual: 31200.00, commit: 2500.00, bal: 11300.00 },
+            { code: "222101", desc: "Office & School Supplies", division: "1501 Administration", orig: 85000.00, rev: 85000.00, actual: 62450.00, commit: 12000.00, bal: 10550.00 },
+            { code: "224105", desc: "Utilities & Electricity", division: "1501 Administration", orig: 120000.00, rev: 120000.00, actual: 95400.00, commit: 8500.00, bal: 16100.00 },
+            { code: "227211", desc: "Travel & Transport Fares", division: "1501 Administration", orig: 95000.00, rev: 95000.00, actual: 54100.00, commit: 15400.00, bal: 25500.00 },
+
+            // 1502 Primary Education
+            { code: "211111", desc: "Base Salary - Local Primary Staff", division: "1502 Primary", orig: 15200000.00, rev: 15200000.00, actual: 11850000.00, commit: 0.00, bal: 3350000.00 },
+            { code: "211121", desc: "Allowances - Primary Staff", division: "1502 Primary", orig: 850000.00, rev: 850000.00, actual: 610000.00, commit: 0.00, bal: 240000.00 },
+            { code: "222101", desc: "School Learning Materials", division: "1502 Primary", orig: 1450000.00, rev: 1450000.00, actual: 1100000.00, commit: 15000.00, bal: 335000.00 },
+            { code: "227211", desc: "Primary School Travel & Inspection", division: "1502 Primary", orig: 350000.00, rev: 350000.00, actual: 210000.00, commit: 4746.13, bal: 135253.87 },
+
+            // 1503 Junior Secondary School (JSS)
+            { code: "211111", desc: "Base Salary - JSS Teachers", division: "1503 Junior Secondary Sch", orig: 9800000.00, rev: 9800000.00, actual: 7450000.00, commit: 0.00, bal: 2350000.00 },
+            { code: "222101", desc: "JSS Curriculum Materials & Tools", division: "1503 Junior Secondary Sch", orig: 850000.00, rev: 850000.00, actual: 680000.00, commit: 8858.95, bal: 161141.05 },
+
+            // 1508 Curriculum Development & Resource Centre (CDRC)
+            { code: "211111", desc: "Base Salary - CDRC Personnel", division: "1508 CDRC", orig: 1200000.00, rev: 1200000.00, actual: 950000.00, commit: 0.00, bal: 250000.00 },
+            { code: "222101", desc: "Textbook Production & Printing", division: "1508 CDRC", orig: 10500000.00, rev: 12663506.53, actual: 10800000.00, commit: 33158.48, bal: 1830348.05 }
+        ];
 
         function fmt(n) {
             return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -366,7 +380,7 @@
             const isDark = document.body.classList.contains('dark-mode');
             document.getElementById('dark-icon').innerText = isDark ? '☀️' : '🌙';
             document.getElementById('dark-text').innerText = isDark ? 'Light Mode' : 'Dark Mode';
-            updateChart();
+            applyFilters();
         }
 
         function resetFilters() {
